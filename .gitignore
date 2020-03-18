@@ -2,5 +2,8 @@
 *.out
 *.class
 *.csproj
+*.o
+*.jar
 bin
 obj
+.vscode
