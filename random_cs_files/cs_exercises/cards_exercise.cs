@@ -1,5 +1,4 @@
 ﻿using System;
-
 /*
 Zadanie 2.
 Zmodyfikuj przykład z tasowaniem kart. Należy wylosować rozdanie do brydża. Mamy 4 graczy, każdy po 13 kart.
@@ -20,7 +19,7 @@ namespace Rextester
 
     public class Deck
     {
-        public readonly Card[] _cards;                               // <- zmieniłem prywatność
+        private readonly Card[] _cards;
 
         public Deck()
         {
@@ -34,7 +33,7 @@ namespace Rextester
             this.Display();
         }
 
-        public void Shuffle()                                          // <- zmieniłem prywatność
+        public void Shuffle()
         {
             Randomizer randomizer = new Randomizer();
             for (int index = 0; index < 52; index++)
@@ -66,6 +65,16 @@ namespace Rextester
                 }
             }
         }
+
+        public Card GetCardFromDeck(int index)
+        {
+            return _cards[index];
+        }
+
+        public int GetCardsLength()
+        {
+            return _cards.Length;
+        }  
 
         private void Display()
         {
@@ -112,22 +121,15 @@ namespace Rextester
         }
     }
     
-    //------------------------------------------------Zadanie-Brydż---------
+    //------------------------------------------------Basic-Bridge-Game---------
     
     public class Bridge
     {
-        public Player n;
-        public Player s;
-        public Player e;
-        public Player w;
-        
+        public Player[] players;
+
         public Bridge()
         {
-            n = new Player();
-            s = new Player();
-            e = new Player();
-            w = new Player();
-            
+            players = new Player[4] {new Player("N"), new Player("S"), new Player("E"), new Player("W")};
             this.Deal();
         }
         
@@ -135,47 +137,67 @@ namespace Rextester
         {
             Deck bridgeDeck = new Deck();
             bridgeDeck.Shuffle();
-            
-            int cardsInHand = 0;
-            for (int cardNumber = 0; cardNumber < 51; cardNumber += 4)
+
+            int iterations = 0;
+            while (iterations < bridgeDeck.GetCardsLength())
             {
-                n.Hand[cardsInHand] = bridgeDeck._cards[cardNumber];
-                s.Hand[cardsInHand] = bridgeDeck._cards[cardNumber + 1];
-                e.Hand[cardsInHand] = bridgeDeck._cards[cardNumber + 2];
-                w.Hand[cardsInHand] = bridgeDeck._cards[cardNumber + 3];
-                cardsInHand++;
+                foreach (Player player in players)
+                {
+                    Card card = bridgeDeck.GetCardFromDeck(iterations);
+                    player.AddCard(card);
+                    iterations++;
+                }
             }
         }
         
         public void DisplayAllHands()
         {
-            Console.WriteLine("Player 'N' -----------");
-            n.DisplayHand();
-            Console.WriteLine("\nPlayer 'S' -----------");
-            s.DisplayHand();
-            Console.WriteLine("\nPlayer 'E' -----------");
-            e.DisplayHand();
-            Console.WriteLine("\nPlayer 'W' -----------");
-            w.DisplayHand();
+            foreach (Player player in players)
+            {
+                player.DisplayHand();
+            }
         }
     }
     
     public class Player
     {
-        public Card[] Hand;
+        private Card[] Hand {get; set;}
+        private int _cardIndex;
+        private string Name {get; set;} 
         
-        public Player()
+        public Player(string name)
         {
+            Name = name;
             Hand = new Card[13];
+            _cardIndex = 0;
+        }
+        
+        public void AddCard(Card card)
+        {
+            if (_cardIndex > Hand.Length - 1)
+            {
+                Console.WriteLine("Gracz nie pomieści tylu kart");
+                return;
+            }
+            if (card == null)
+            {
+                Console.WriteLine("Nie można dodać pustej karty");
+                return;
+            }
+            
+            Hand[_cardIndex] = card;
+            _cardIndex++;
         }
         
         public void DisplayHand()
         {
+            Console.WriteLine("Cards of player {0}:", Name);
             foreach ( Card card in Hand )
             {
                 string cardToDisplay = card.ToDisplay();
                 Console.WriteLine(cardToDisplay);
             }
+            Console.WriteLine();
         }
     }
 }
